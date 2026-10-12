@@ -214,6 +214,35 @@ class MainActivity : AppCompatActivity() {
               '{display:none!important;visibility:hidden!important;height:0!important;}';
             (document.head || document.documentElement).appendChild(s);
           }
+          // Tutup otomatis pop-up promo Komiku Plus dengan menekan tombol "Tutup"-nya
+          if (!window.__komikPromo) {
+            window.__komikPromo = true;
+            var PROMO = /ambil diskon|komiku plus|klaim harga promo/i;
+            var closePromo = function () {
+              var btns = document.querySelectorAll('button, a, [role=button], .btn');
+              for (var i = 0; i < btns.length; i++) {
+                var b = btns[i];
+                if (!/^\s*(tutup|close)\s*$/i.test(b.textContent || '')) continue;
+                if (!b.offsetParent && getComputedStyle(b).position !== 'fixed') continue; // tidak terlihat
+                // Cari wadah pop-up terdekat (modal/dialog), lalu pastikan isinya promo
+                var p = b.parentElement, box = null;
+                for (var d = 0; p && p !== document.body && d < 12; d++, p = p.parentElement) {
+                  var cls = (p.className && p.className.baseVal === undefined ? p.className : '') || '';
+                  if (p.getAttribute('role') === 'dialog' || /modal|popup|swal|dialog/i.test(cls) ||
+                      getComputedStyle(p).position === 'fixed') { box = p; break; }
+                }
+                if (box && PROMO.test(box.textContent || '')) b.click();
+              }
+            };
+            closePromo();
+            var pending = false;
+            new MutationObserver(function () {
+              if (pending) return;
+              pending = true;
+              setTimeout(function () { pending = false; closePromo(); }, 250);
+            })
+              .observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+          }
           var m = document.querySelector('meta[name=viewport]');
           if (!m) { m = document.createElement('meta'); m.name = 'viewport'; (document.head || document.documentElement).appendChild(m); }
           m.content = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes';
