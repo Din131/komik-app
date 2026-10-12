@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Komiku</string>
+    <string name="app_name">VoraToon</string>
 
     <!-- Alamat situs yang dibuka. Kalau situsnya ganti domain, cukup ubah baris ini. -->
-    <string name="start_url" translatable="false">https://komiku.org/</string>
+    <string name="start_url" translatable="false">https://voratoon.co/</string>
 
     <string name="load_error">Gagal memuat halaman.\nKetuk untuk coba lagi.</string>
     <string name="link_blocked">Link ke %1$s diblokir</string>
@@ -14,6 +14,6 @@
     <string name="update_skip">Lewati versi ini</string>
     <string name="update_downloading">Mengunduh update…</string>
     <string name="update_failed">Gagal mengunduh update</string>
-    <string name="update_allow_install">Izinkan Komiku memasang aplikasi, lalu buka lagi untuk update</string>
+    <string name="update_allow_install">Izinkan VoraToon memasang aplikasi, lalu buka lagi untuk update</string>
     <string name="press_back_again">Tekan kembali sekali lagi untuk keluar</string>
 </resources>

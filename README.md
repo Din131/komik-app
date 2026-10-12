@@ -1,6 +1,6 @@
-# Komiku
+# VoraToon
 
-Aplikasi Android pribadi untuk membaca komik di komiku.org tanpa browser, dengan adblock bawaan.
+Aplikasi Android pribadi untuk membaca komik di voratoon.co tanpa browser, dengan adblock bawaan.
 
 ## Unduh APK
 
