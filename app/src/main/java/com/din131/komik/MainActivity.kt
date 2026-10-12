@@ -214,6 +214,53 @@ class MainActivity : AppCompatActivity() {
               '{display:none!important;visibility:hidden!important;height:0!important;}';
             (document.head || document.documentElement).appendChild(s);
           }
+          // Sembunyikan banner iklan (termasuk iklan judi online) yang disisipkan situs:
+          // gambar yang mengarah ke domain lain, atau gambar/link dengan kata kunci judi.
+          if (!window.__komikBanner) {
+            window.__komikBanner = true;
+            var base = function (h) { return (h || '').toLowerCase().split('.').slice(-2).join('.'); };
+            var SITE = base(location.hostname);
+            var SAFE = /(^|\.)(discord\.gg|discord\.com|facebook\.com|instagram\.com|x\.com|twitter\.com|t\.me|tiktok\.com|youtube\.com|trakteer\.id|saweria\.co|fansku\.id)$/i;
+            var GAMBLE = /slot|gacor|judi|togel|toto|casino|kasino|maxwin|scatter|mahjong|sbobet|pragmatic|jackpot|depo|bonus|win88|\d{2,3}(bet|win)|dewa|hoki|zeus|olympus/i;
+            // Daftar ketat untuk gambar di domain situs sendiri (hindari menyembunyikan sampul komik)
+            var GAMBLE_STRICT = /slot|gacor|judi|togel|casino|kasino|maxwin|scatter|sbobet|pragmatic/i;
+            var hideBox = function (el) {
+              // Naik ke wadah yang hanya berisi iklan ini, supaya tidak meninggalkan ruang kosong
+              var t = el;
+              while (t.parentElement && t.parentElement !== document.body &&
+                     t.parentElement.children.length === 1) t = t.parentElement;
+              t.style.setProperty('display', 'none', 'important');
+            };
+            var scan = function () {
+              var links = document.querySelectorAll('a[href]');
+              for (var i = 0; i < links.length; i++) {
+                var a = links[i];
+                if (a.__komikChecked) continue;
+                a.__komikChecked = true;
+                var img = a.querySelector('img, picture, video');
+                var host = '';
+                try { host = new URL(a.href, location.href).hostname; } catch (e) {}
+                var external = host && base(host) !== SITE && !SAFE.test(host);
+                var text = a.href + ' ' + (img ? (img.getAttribute('src') || '') + ' ' + (img.getAttribute('alt') || '') : '');
+                if ((img && external) || (external && GAMBLE.test(text))) hideBox(a);
+              }
+              var imgs = document.querySelectorAll('img');
+              for (var j = 0; j < imgs.length; j++) {
+                var im = imgs[j];
+                if (im.__komikChecked) continue;
+                im.__komikChecked = true;
+                var s = (im.getAttribute('src') || '') + ' ' + (im.getAttribute('alt') || '');
+                if (GAMBLE_STRICT.test(s) && !/cover|thumb|chapter|series/i.test(s)) hideBox(im.closest('a') || im);
+              }
+            };
+            scan();
+            var waiting = false;
+            new MutationObserver(function () {
+              if (waiting) return;
+              waiting = true;
+              setTimeout(function () { waiting = false; scan(); }, 200);
+            }).observe(document.documentElement, { childList: true, subtree: true });
+          }
           var m = document.querySelector('meta[name=viewport]');
           if (!m) { m = document.createElement('meta'); m.name = 'viewport'; (document.head || document.documentElement).appendChild(m); }
           m.content = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes';
@@ -257,6 +304,11 @@ class MainActivity : AppCompatActivity() {
 
         override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
             errorView.visibility = View.GONE
+        }
+
+        // Jalankan penyaring sedini mungkin, saat halaman mulai tampil
+        override fun onPageCommitVisible(view: WebView, url: String?) {
+            view.evaluateJavascript(pageJs, null)
         }
 
         override fun onPageFinished(view: WebView, url: String?) {
