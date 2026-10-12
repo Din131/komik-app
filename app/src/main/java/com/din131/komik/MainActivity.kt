@@ -183,7 +183,9 @@ class MainActivity : AppCompatActivity() {
         "accounts.google.com", "accounts.youtube.com", "www.google.com",
         "discord.com", "discordapp.com",
         "facebook.com", "x.com", "twitter.com", "appleid.apple.com",
-        "challenges.cloudflare.com", "hcaptcha.com"
+        "challenges.cloudflare.com", "hcaptcha.com",
+        // Firebase Authentication (dipakai login Google di banyak situs, termasuk Komiku)
+        "firebaseapp.com", "web.app", "securetoken.googleapis.com", "identitytoolkit.googleapis.com"
     )
 
     private fun isAuth(host: String?): Boolean {
@@ -224,7 +226,8 @@ class MainActivity : AppCompatActivity() {
 
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
             val host = request.url.host
-            if (!isAllowed(host) && AdBlocker.isBlocked(host)) return emptyResponse
+            // Jangan blokir situs utama maupun layanan login
+            if (!isAllowed(host) && !isAuth(host) && AdBlocker.isBlocked(host)) return emptyResponse
             return null
         }
 
