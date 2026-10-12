@@ -261,9 +261,31 @@ class MainActivity : AppCompatActivity() {
               setTimeout(function () { waiting = false; scan(); }, 200);
             }).observe(document.documentElement, { childList: true, subtree: true });
           }
-          var m = document.querySelector('meta[name=viewport]');
-          if (!m) { m = document.createElement('meta'); m.name = 'viewport'; (document.head || document.documentElement).appendChild(m); }
-          m.content = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes';
+          // Zoom dua jari hanya di halaman baca chapter
+          if (!window.__komikZoom) {
+            window.__komikZoom = true;
+            var ZOOM_ON = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes';
+            var ZOOM_OFF = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no';
+            var isReader = function () {
+              if (/chapter|\/read\/|\/baca\//i.test(location.pathname)) return true;
+              // Ciri halaman komik: banyak gambar tinggi yang hampir selebar layar
+              var imgs = document.getElementsByTagName('img'), pages = 0, vw = window.innerWidth;
+              for (var i = 0; i < imgs.length && pages < 3; i++) {
+                var r = imgs[i].getBoundingClientRect();
+                if (r.width >= vw * 0.8 && r.height >= r.width * 1.1) pages++;
+              }
+              return pages >= 3;
+            };
+            var applyZoom = function () {
+              var want = isReader() ? ZOOM_ON : ZOOM_OFF;
+              var m = document.querySelector('meta[name=viewport]');
+              if (!m) { m = document.createElement('meta'); m.name = 'viewport'; (document.head || document.documentElement).appendChild(m); }
+              if (m.content !== want) m.content = want;
+            };
+            applyZoom();
+            // Situs berpindah halaman tanpa memuat ulang, jadi cek berkala
+            setInterval(applyZoom, 1000);
+          }
         })();
     """.trimIndent()
 
